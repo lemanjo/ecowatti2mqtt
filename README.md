@@ -9,6 +9,22 @@ Example Raspberry Pi + USB Serial dongle
 
 Either Home Assistant with Mosquitto or separate MQTT broker instance.
 
+## Config
+
+| **Config**             	| **Type** 	| **Explanation**                                                                 	|
+|------------------------	|----------	|---------------------------------------------------------------------------------	|
+| mqtt_client_name       	| string   	| Client name for MQTT. Default: Ecowatti                                         	|
+| mqtt_topic_header      	| string   	| Header for the MQTT topic. Default: homeassistant/sensor                        	|
+| mqtt_host              	| string   	| Host ip for the MQTT Broker                                                     	|
+| mqtt_port              	| int      	| Port for the MQTT Broker. Default: 1883                                         	|
+| mqtt_timeout           	| int      	| Timeout in seconds for the MQTT communication. Default: 60                      	|
+| mqtt_username          	| string   	| MQTT Username                                                                   	|
+| mqtt_password          	| string   	| MQTT Password                                                                   	|
+| serial_device          	| string   	| Device that is connected to the Ecowatti RS485 port. Example: /dev/ttyUSB0      	|
+| serial_timeout         	| int      	| Serial communication timeout in seconds. Default: 1                             	|
+| config_update_interval 	| int      	| Inteval in minutes in which the config topic is send. Default: 15               	|
+| sensor_update_interval 	| int      	| Interval in minutes in which the temperatures are measured and sent. Default: 5 	|
+
 ## Installation
 
 Download & unzip the repository
