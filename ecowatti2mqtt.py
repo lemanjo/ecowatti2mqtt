@@ -89,7 +89,7 @@ def main():
                 payload = {
                     "unique_id": f"ecowatti-{sensor.name.lower()}-temperature",
                     "device_class": "temperature",
-                    "name": "Ecowatti T1 temp",
+                    "name": f"Ecowatti {sensor.name} temp",
                     "state_topic": f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/state",
                     "unit_of_measurement": "°C",
                     "icon": "hass:thermometer",
