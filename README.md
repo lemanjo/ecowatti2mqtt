@@ -33,19 +33,19 @@ Install the requirements
 Create config file from the example config
 
 ```
-cp config.example.json config.json
+|> cp config.example.json config.json
 ```
 
 Edit the file with nano
 
 ```
-nano config.json
+|> nano config.json
 ```
 
 Set permissions for the python file
 
 ```
-sudo chmod +x ecowatti2mqtt.py
+|> sudo chmod +x ecowatti2mqtt.py
 ```
 
 Check the full path for the file and store it
@@ -80,7 +80,7 @@ WantedBy=multi-user.target
 Set permissions for the service file
 
 ```
-sudo chmod 644 /lib/systemd/system/ecowatti.service
+|> sudo chmod 644 /lib/systemd/system/ecowatti.service
 ```
 
 Update the systemd configuration
@@ -94,5 +94,5 @@ Now its all done and you can reboot the system.
 After reboot, the program should load on the background and Home Assistant discovery should find the new mqtt sensors.
 
 ```
-sudo reboot
+|> sudo reboot
 ```
