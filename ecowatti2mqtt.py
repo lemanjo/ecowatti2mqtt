@@ -1,4 +1,4 @@
-import paho.mqtt as mqtt
+import paho.mqtt.client as mqtt
 import json
 from ecowatti import EcowattiConfig, Ecowatti
 from pydantic import BaseModel
@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 class Config(BaseModel):
     mqtt_client_name: str
+    mqtt_topic: str
     mqtt_host: str
     mqtt_port: int
     mqtt_timeout: int
@@ -22,7 +23,7 @@ def parse_config() -> Config:
     with open("config.json", "rb") as cfg_file:
         json_data = json.load(cfg_file)
 
-    return Config.parse_raw(json_data)
+    return Config(**json_data)
 
 
 def on_connect(client, userdata, flags, rc):
@@ -56,17 +57,42 @@ def main():
     last_config_update = datetime.now()
     last_sensor_update = datetime.now()
 
+    for sensor in ecowatti._temperature_sensors:
+        topic = f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/config"
+        payload = {
+            "unique_id": f"ecowatti-{sensor.name.lower()}-temperature",
+            "device_class": "temperature",
+            "name": f"Ecowatti {sensor.name} temp",
+            "state_topic": f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/state",
+            "unit_of_measurement": "°C",
+            "icon": "hass:thermometer",
+            "value_template": "{{ value_json.temperature }}"
+        }
+
+        client.publish(topic, json.dumps(payload))
+
+        last_config_update = datetime.now()
+
+    ecowatti.update_all_temperatures()
+
+    for sensor in ecowatti._temperature_sensors:
+        topic = f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/state"
+        data = {'temperature':  sensor.value}
+        client.publish(topic, json.dumps(data))
+
+    last_sensor_update = datetime.now()
+
     while True:
-        if last_config_update > datetime.now()+timedelta(minutes=config.config_update_interval):
-            for sensor in ecowatti._temperature_sensors():
-                topic = f"homeassistant/sensor/ecowatti-temperature-{sensor.name.lower()}/config"
+        if datetime.now() > last_config_update+timedelta(minutes=config.config_update_interval):
+            for sensor in ecowatti._temperature_sensors:
+                topic = f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/config"
                 payload = {
                     "unique_id": f"ecowatti-{sensor.name.lower()}-temperature",
                     "device_class": "temperature",
                     "name": "Ecowatti T1 temp",
-                    "state_topic": f"homeassistant/sensor/{sensor.name.lower()}/state",
-                    "unit_of_measurement": "'C",
-                    "icon": "hass:chip",
+                    "state_topic": f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/state",
+                    "unit_of_measurement": "°C",
+                    "icon": "hass:thermometer",
                     "value_template": "{{ value_json.temperature }}"
                 }
 
@@ -74,12 +100,12 @@ def main():
 
                 last_config_update = datetime.now()
 
-        if last_sensor_update > datetime.now() + timedelta(minutes=config.sensor_update_interval):
+        if datetime.now() > last_sensor_update + timedelta(minutes=config.sensor_update_interval):
             ecowatti.update_all_temperatures()
 
-            for sensor in ecowatti._temperature_sensors():
-                topic = "homeassistant/sensor/ecowatti-temperature-"+sensor.name.lower()
-                data = {'temperature':  sensor.value, "date": datetime.now()}
+            for sensor in ecowatti._temperature_sensors:
+                topic = f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/state"
+                data = {'temperature':  sensor.value}
                 client.publish(topic, json.dumps(data))
 
             last_sensor_update = datetime.now()
