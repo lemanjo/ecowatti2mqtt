@@ -71,7 +71,10 @@ After=multi-user.target
 
 [Service]
 Type=idle
+User=pi
+WorkingDirectory=/home/pi/ecowatti2mqtt-master
 ExecStart=/usr/bin/python3 /home/pi/ecowatti2mqtt-master/ecowatti2mqtt.py
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
