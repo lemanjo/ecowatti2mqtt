@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 class Config(BaseModel):
     mqtt_client_name: str
-    mqtt_topic: str
+    mqtt_topic_header: str
     mqtt_host: str
     mqtt_port: int
     mqtt_timeout: int
@@ -58,12 +58,12 @@ def main():
     last_sensor_update = datetime.now()
 
     for sensor in ecowatti._temperature_sensors:
-        topic = f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/config"
+        topic = f"{config.mqtt_topic_header}/ecowatti-temperature-{sensor.name.lower()}/config"
         payload = {
             "unique_id": f"ecowatti-{sensor.name.lower()}-temperature",
             "device_class": "temperature",
             "name": f"Ecowatti {sensor.name} temp",
-            "state_topic": f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/state",
+            "state_topic": f"{config.mqtt_topic_header}/ecowatti-temperature-{sensor.name.lower()}/state",
             "unit_of_measurement": "°C",
             "icon": "hass:thermometer",
             "value_template": "{{ value_json.temperature }}"
@@ -76,7 +76,7 @@ def main():
     ecowatti.update_all_temperatures()
 
     for sensor in ecowatti._temperature_sensors:
-        topic = f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/state"
+        topic = f"{config.mqtt_topic_header}/ecowatti-temperature-{sensor.name.lower()}/state"
         data = {'temperature':  sensor.value}
         client.publish(topic, json.dumps(data))
 
@@ -85,12 +85,12 @@ def main():
     while True:
         if datetime.now() > last_config_update+timedelta(minutes=config.config_update_interval):
             for sensor in ecowatti._temperature_sensors:
-                topic = f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/config"
+                topic = f"{config.mqtt_topic_header}/ecowatti-temperature-{sensor.name.lower()}/config"
                 payload = {
                     "unique_id": f"ecowatti-{sensor.name.lower()}-temperature",
                     "device_class": "temperature",
                     "name": f"Ecowatti {sensor.name} temp",
-                    "state_topic": f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/state",
+                    "state_topic": f"{config.mqtt_topic_header}/ecowatti-temperature-{sensor.name.lower()}/state",
                     "unit_of_measurement": "°C",
                     "icon": "hass:thermometer",
                     "value_template": "{{ value_json.temperature }}"
@@ -104,7 +104,7 @@ def main():
             ecowatti.update_all_temperatures()
 
             for sensor in ecowatti._temperature_sensors:
-                topic = f"{config.mqtt_topic}/ecowatti-temperature-{sensor.name.lower()}/state"
+                topic = f"{config.mqtt_topic_header}/ecowatti-temperature-{sensor.name.lower()}/state"
                 data = {'temperature':  sensor.value}
                 client.publish(topic, json.dumps(data))
 
