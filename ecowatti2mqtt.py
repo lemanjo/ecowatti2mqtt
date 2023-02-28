@@ -54,9 +54,6 @@ def main():
 
     ecowatti = Ecowatti(ecowatti_config)
 
-    last_config_update = datetime.now()
-    last_sensor_update = datetime.now()
-
     for sensor in ecowatti._temperature_sensors:
         topic = f"{config.mqtt_topic_header}/ecowatti-temperature-{sensor.name.lower()}/config"
         payload = {
@@ -71,7 +68,7 @@ def main():
 
         client.publish(topic, json.dumps(payload))
 
-        last_config_update = datetime.now()
+    last_config_update = datetime.now()
 
     ecowatti.update_all_temperatures()
 
